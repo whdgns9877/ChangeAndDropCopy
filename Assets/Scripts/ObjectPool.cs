@@ -34,25 +34,19 @@ public class ObjectPool : MonoBehaviour
     }
 
     [SerializeField] Pool[] pools;
-    List<GameObject> spawnObjects;
-    Dictionary<string, Queue<GameObject>> poolDictionary;
+    private List<GameObject> spawnObjects;
+    private Dictionary<string, Queue<GameObject>> poolDictionary;
 
 
-    readonly string INFO = " 오브젝트에 다음을 적으세요 \nvoid OnDisable()\n{\n" +
-        "    ObjectPool.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
-        "    CancelInvoke();    // Monobehaviour에 Invoke가 있다면 \n}";
+    public static GameObject SpawnFromPool(string tag, Vector3 position) =>
+        inst._SpawnFromPool(tag, position, Quaternion.identity);
 
+    public static GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation) =>
+        inst._SpawnFromPool(tag, position, rotation);
 
-
-    public static GameObject SpawnFromPool(string tag, Vector3 position, Transform transform = null) =>
-        inst._SpawnFromPool(tag, position, Quaternion.identity, transform);
-
-    public static GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation, Transform transform = null) =>
-        inst._SpawnFromPool(tag, position, rotation, transform);
-
-    public static T SpawnFromPool<T>(string tag, Vector3 position, Transform transform = null) where T : Component
+    public static T SpawnFromPool<T>(string tag, Vector3 position) where T : Component
     {
-        GameObject obj = inst._SpawnFromPool(tag, position, Quaternion.identity, transform);
+        GameObject obj = inst._SpawnFromPool(tag, position, Quaternion.identity);
         if (obj.TryGetComponent(out T component))
             return component;
         else
@@ -62,9 +56,9 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    public static T SpawnFromPool<T>(string tag, Vector3 position, Quaternion rotation, Transform transform = null) where T : Component
+    public static T SpawnFromPool<T>(string tag, Vector3 position, Quaternion rotation) where T : Component
     {
-        GameObject obj = inst._SpawnFromPool(tag, position, rotation, transform);
+        GameObject obj = inst._SpawnFromPool(tag, position, rotation);
         if (obj.TryGetComponent(out T component))
             return component;
         else
@@ -101,7 +95,7 @@ public class ObjectPool : MonoBehaviour
     }
 
     [ContextMenu("GetSpawnObjectsInfo")]
-    void GetSpawnObjectsInfo()
+    public void GetSpawnObjectsInfo()
     {
         foreach (var pool in pools)
         {
@@ -110,30 +104,7 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    //GameObject _SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
-    //{
-    //    if (!poolDictionary.ContainsKey(tag))
-    //        throw new Exception($"Pool with tag {tag} doesn't exist.");
-
-    //    // 큐에 없으면 새로 추가
-    //    Queue<GameObject> poolQueue = poolDictionary[tag];
-    //    if (poolQueue.Count <= 0)
-    //    {
-    //        Pool pool = Array.Find(pools, x => x.tag == tag);
-    //        var obj = CreateNewObject(pool.tag, pool.prefab);
-    //        ArrangePool(obj);
-    //    }
-
-    //    // 큐에서 꺼내서 사용
-    //    GameObject objectToSpawn = poolQueue.Dequeue();
-    //    objectToSpawn.transform.position = position;
-    //    objectToSpawn.transform.rotation = rotation;
-    //    objectToSpawn.SetActive(true);
-
-    //    return objectToSpawn;
-    //}
-
-    GameObject _SpawnFromPool(string tag, Vector3 position, Quaternion rotation, Transform parent = null)
+    private GameObject _SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
         if (!poolDictionary.ContainsKey(tag))
             throw new Exception($"Pool with tag {tag} doesn't exist.");
@@ -143,7 +114,7 @@ public class ObjectPool : MonoBehaviour
         if (poolQueue.Count <= 0)
         {
             Pool pool = Array.Find(pools, x => x.tag == tag);
-            var obj = CreateNewObject(pool.tag, pool.prefab, parent);
+            var obj = CreateNewObject(pool.tag, pool.prefab);
             ArrangePool(obj);
         }
 
@@ -173,7 +144,7 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    GameObject CreateNewObject(string tag, GameObject prefab, Transform parent = null)
+    private GameObject CreateNewObject(string tag, GameObject prefab, Transform parent = null)
     {
         var obj = Instantiate(prefab, parent == null ? transform : parent);
         obj.name = tag;
@@ -181,7 +152,7 @@ public class ObjectPool : MonoBehaviour
         return obj;
     }
 
-    void ArrangePool(GameObject obj)
+    private void ArrangePool(GameObject obj)
     {
         // 추가된 오브젝트 묶어서 정렬
         bool isFind = false;
