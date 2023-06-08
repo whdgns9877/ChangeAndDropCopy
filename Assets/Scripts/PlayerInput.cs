@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum TouchState { TouchBegan, TouchEnd, SingleTouch, Swipe }
@@ -7,11 +8,14 @@ public static class PlayerInput
     public static TouchState state = TouchState.TouchEnd;
 
     public static bool ballDrop = false;
+    public static bool isBallBlue = true;
 
     private static bool isSwiping;
     private static Vector2 swipeStartPosition;
     private static float swipeThreshold = 50f; // 스와이프로 감지되는 최소 이동 거리
     private static float swipeDistance = 0f; // 스와이프된 거리
+
+    public static event Action OnSingleTouch;
 
     public static void Update()
     {
@@ -45,12 +49,14 @@ public static class PlayerInput
             {
                 if (isSwiping)
                 {
-                    state = TouchState.TouchEnd;
+                    state = TouchState.TouchEnd;                   
                     ballDrop = true;
                 }
                 else
                 {
                     state = TouchState.SingleTouch;
+                    isBallBlue = !isBallBlue;
+                    OnSingleTouch?.Invoke();
                 }
             }
         }
