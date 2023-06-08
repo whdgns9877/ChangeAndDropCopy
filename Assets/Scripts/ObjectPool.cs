@@ -44,15 +44,15 @@ public class ObjectPool : MonoBehaviour
 
 
 
-    public static GameObject SpawnFromPool(string tag, Vector3 position) =>
-        inst._SpawnFromPool(tag, position, Quaternion.identity);
+    public static GameObject SpawnFromPool(string tag, Vector3 position, Transform transform = null) =>
+        inst._SpawnFromPool(tag, position, Quaternion.identity, transform);
 
-    public static GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation) =>
-        inst._SpawnFromPool(tag, position, rotation);
+    public static GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation, Transform transform = null) =>
+        inst._SpawnFromPool(tag, position, rotation, transform);
 
-    public static T SpawnFromPool<T>(string tag, Vector3 position) where T : Component
+    public static T SpawnFromPool<T>(string tag, Vector3 position, Transform transform = null) where T : Component
     {
-        GameObject obj = inst._SpawnFromPool(tag, position, Quaternion.identity);
+        GameObject obj = inst._SpawnFromPool(tag, position, Quaternion.identity, transform);
         if (obj.TryGetComponent(out T component))
             return component;
         else
@@ -62,9 +62,9 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    public static T SpawnFromPool<T>(string tag, Vector3 position, Quaternion rotation) where T : Component
+    public static T SpawnFromPool<T>(string tag, Vector3 position, Quaternion rotation, Transform transform = null) where T : Component
     {
-        GameObject obj = inst._SpawnFromPool(tag, position, rotation);
+        GameObject obj = inst._SpawnFromPool(tag, position, rotation, transform);
         if (obj.TryGetComponent(out T component))
             return component;
         else
@@ -110,7 +110,30 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    GameObject _SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
+    //GameObject _SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
+    //{
+    //    if (!poolDictionary.ContainsKey(tag))
+    //        throw new Exception($"Pool with tag {tag} doesn't exist.");
+
+    //    // 큐에 없으면 새로 추가
+    //    Queue<GameObject> poolQueue = poolDictionary[tag];
+    //    if (poolQueue.Count <= 0)
+    //    {
+    //        Pool pool = Array.Find(pools, x => x.tag == tag);
+    //        var obj = CreateNewObject(pool.tag, pool.prefab);
+    //        ArrangePool(obj);
+    //    }
+
+    //    // 큐에서 꺼내서 사용
+    //    GameObject objectToSpawn = poolQueue.Dequeue();
+    //    objectToSpawn.transform.position = position;
+    //    objectToSpawn.transform.rotation = rotation;
+    //    objectToSpawn.SetActive(true);
+
+    //    return objectToSpawn;
+    //}
+
+    GameObject _SpawnFromPool(string tag, Vector3 position, Quaternion rotation, Transform parent = null)
     {
         if (!poolDictionary.ContainsKey(tag))
             throw new Exception($"Pool with tag {tag} doesn't exist.");
@@ -120,7 +143,7 @@ public class ObjectPool : MonoBehaviour
         if (poolQueue.Count <= 0)
         {
             Pool pool = Array.Find(pools, x => x.tag == tag);
-            var obj = CreateNewObject(pool.tag, pool.prefab);
+            var obj = CreateNewObject(pool.tag, pool.prefab, parent);
             ArrangePool(obj);
         }
 
@@ -133,7 +156,7 @@ public class ObjectPool : MonoBehaviour
         return objectToSpawn;
     }
 
-    void Start()
+    private void Start()
     {
         spawnObjects = new List<GameObject>();
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
@@ -147,18 +170,12 @@ public class ObjectPool : MonoBehaviour
                 var obj = CreateNewObject(pool.tag, pool.prefab);
                 ArrangePool(obj);
             }
-
-            // OnDisable에 ReturnToPool 구현여부와 중복구현 검사
-            if (poolDictionary[pool.tag].Count <= 0)
-                Debug.LogError($"{pool.tag}{INFO}");
-            else if (poolDictionary[pool.tag].Count != pool.size)
-                Debug.LogError($"{pool.tag}에 ReturnToPool이 중복됩니다");
         }
     }
 
-    GameObject CreateNewObject(string tag, GameObject prefab)
+    GameObject CreateNewObject(string tag, GameObject prefab, Transform parent = null)
     {
-        var obj = Instantiate(prefab, transform);
+        var obj = Instantiate(prefab, parent == null ? transform : parent);
         obj.name = tag;
         obj.SetActive(false); // 비활성화시 ReturnToPool을 하므로 Enqueue가 됨
         return obj;
