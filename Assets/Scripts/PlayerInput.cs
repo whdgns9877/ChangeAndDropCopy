@@ -1,4 +1,3 @@
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public enum TouchState { TouchBegan, TouchEnd, SingleTouch, Swipe }
@@ -6,6 +5,8 @@ public enum TouchState { TouchBegan, TouchEnd, SingleTouch, Swipe }
 public static class PlayerInput
 {
     public static TouchState state = TouchState.TouchEnd;
+
+    public static bool ballDrop = false;
 
     private static bool isSwiping;
     private static Vector2 swipeStartPosition;
@@ -45,6 +46,7 @@ public static class PlayerInput
                 if (isSwiping)
                 {
                     state = TouchState.TouchEnd;
+                    ballDrop = true;
                 }
                 else
                 {
