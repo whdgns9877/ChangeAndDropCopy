@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Bucket : MonoBehaviour
 {
@@ -10,8 +8,10 @@ public class Bucket : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            ObjectPool.SpawnFromPool("Ball", transform.position, Quaternion.identity, transform);
+            GameObject obj = ObjectPool.SpawnFromPool("Ball", transform.position + new Vector3(Random.Range(-1.0f, 1.0f), 0,0), Quaternion.identity);
+            obj.transform.SetParent(transform);
         }
+
         if (Input.touchCount == 0)
             return;
 
