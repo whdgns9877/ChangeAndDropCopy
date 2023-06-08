@@ -90,8 +90,8 @@ public class ObjectPool : MonoBehaviour
     {
         if (!inst.poolDictionary.ContainsKey(obj.name))
             throw new Exception($"Pool with tag {obj.name} doesn't exist.");
-
         inst.poolDictionary[obj.name].Enqueue(obj);
+        obj.SetActive(false);
     }
 
     [ContextMenu("GetSpawnObjectsInfo")]
