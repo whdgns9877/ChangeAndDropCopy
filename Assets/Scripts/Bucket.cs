@@ -12,6 +12,17 @@ public class Bucket : MonoBehaviour
     private void Start()
     {
         ObjectPoolTr = FindObjectOfType<ObjectPool>().transform; //ObjectPool 의 transfrom 할당
+        Invoke(nameof(Test),0.1f);
+    }
+
+    private void Test()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            GameObject obj = ObjectPool.SpawnFromPool(Utils.BALLTAG, transform.position + new Vector3(Random.Range(-1.0f, 1.0f), 0, 0), Utils.QI);
+            obj.transform.SetParent(transform);
+            childs.Add(obj); 
+        }
     }
 
     // Update is called once per frame
@@ -19,11 +30,10 @@ public class Bucket : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            GameObject obj = ObjectPool.SpawnFromPool(Utils.BALLTAG, transform.position + new Vector3(Random.Range(-1.0f, 1.0f), 0,0), Utils.QI);
+            GameObject obj = ObjectPool.SpawnFromPool(Utils.BALLTAG, transform.position + new Vector3(Random.Range(-1.0f, 1.0f), 0, 0), Utils.QI);
             obj.transform.SetParent(transform);
             childs.Add(obj);
         }
-
         // 터치 입력이 없다면 연산하지않는다
         if (Input.touchCount == 0)
             return;
