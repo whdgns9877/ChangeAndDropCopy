@@ -11,7 +11,7 @@ public class Obstacle : MonoBehaviour
     private void Start()
     {
         myText = GetComponentInChildren<TextMeshProUGUI>();
-        int rand = Random.Range(2, 4);
+        int rand = Random.Range(2, 5);
         myText.text = $"X {rand}";
         myNum = rand;
     }
