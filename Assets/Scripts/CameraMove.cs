@@ -5,6 +5,8 @@ public class CameraMove : MonoBehaviour
     //카메라가 바라볼 tartget의 Transform
     private Transform targetTr = null;
 
+    private float offsetY = 10f;
+
     // Update is called once per frame
     private void Update()
     {
@@ -12,7 +14,7 @@ public class CameraMove : MonoBehaviour
         if (PlayerInput.ballDrop == true)
         {
             targetTr = Utils.FindTarget(); // 타겟을 찾고
-            transform.position = new Vector3(transform.position.x, targetTr.position.y, transform.position.z); // y축만 이동시킨다
+            transform.position = new Vector3(transform.position.x, targetTr.position.y + offsetY, transform.position.z); // y축만 이동시킨다
         }
     }
 }
