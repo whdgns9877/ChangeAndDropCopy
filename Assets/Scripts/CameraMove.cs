@@ -1,34 +1,18 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraMove : MonoBehaviour
 {
+    //카메라가 바라볼 tartget의 Transform
     private Transform targetTr = null;
 
     // Update is called once per frame
     private void Update()
     {
+        // Player가 터치하여 공들이 떨어진 이후부터 추적
         if (PlayerInput.ballDrop == true)
         {
-            targetTr = FindTarget();
-            transform.position = new Vector3(transform.position.x, targetTr.position.y, transform.position.z);
+            targetTr = Utils.FindTarget(); // 타겟을 찾고
+            transform.position = new Vector3(transform.position.x, targetTr.position.y, transform.position.z); // y축만 이동시킨다
         }
-    }
-
-    // 공들중 y포지션이 가장 낮은것을 target으로 설정
-    private Transform FindTarget()
-    {
-        Transform target = null;
-        List<Transform> targets = ObjectPool.GetAllPools("Ball").ConvertAll(t => t.transform);
-
-        target = targets[0];
-
-        foreach (Transform ball in targets)
-        {
-            if (target.transform.position.y > ball.transform.position.y)
-                target = ball;
-        }
-
-        return target;
     }
 }
