@@ -14,6 +14,7 @@ public class CameraMove : MonoBehaviour
         if (PlayerInput.ballDrop == true)
         {
             targetTr = Utils.FindTarget(); // 타겟을 찾고
+            if (targetTr == null) return;
             transform.position = new Vector3(transform.position.x, targetTr.position.y + offsetY, transform.position.z); // y축만 이동시킨다
         }
     }
