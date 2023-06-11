@@ -7,6 +7,7 @@ public class Utils
     public const string BALLTAG = "Ball";
     public const string BLUETAG = "Blue";
     public const string ORANGETAG = "Orange";
+    public const string EndLineTag = "EndLine";
 
     public static readonly Quaternion QI = Quaternion.identity;
 
@@ -14,8 +15,9 @@ public class Utils
     public static Transform FindTarget()
     {
         Transform target = null;
-        List<Transform> targets = ObjectPool.GetAllPools("Ball").ConvertAll(t => t.transform);
+        List<Transform> targets = BallObjectPool.Instance.ActiveBallList;
 
+        if (targets.Count == 0) return null;
         target = targets[0];
 
         foreach (Transform ball in targets)
@@ -23,7 +25,6 @@ public class Utils
             if (target.transform.position.y > ball.transform.position.y)
                 target = ball;
         }
-
         return target;
     }
 }
