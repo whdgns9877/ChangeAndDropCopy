@@ -112,6 +112,6 @@ public static class PlayerInput
     // 스와이프 거리를 Clamping하여 반환하는 함수
     public static float GetSwipeDistance()
     {
-        return Mathf.Clamp(swipeDistance, -3.18f, 3.18f);
+        return Mathf.Clamp(swipeDistance, -3.64f, 3.64f);
     }
 }
