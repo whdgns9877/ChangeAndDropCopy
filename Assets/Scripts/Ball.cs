@@ -46,14 +46,19 @@ public class Ball : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag(Utils.EndLineTag))
+        if (other.CompareTag(Utils.ENDLINETAG))
         {
             // z축 좌표 고정을 풀어준다
             myRb.constraints = ~RigidbodyConstraints.FreezePosition;
         }
 
+        if (other.CompareTag(Utils.DEADLINETAG))
+        {
+            BallObjectPool.Instance.ReturnToPool(gameObject);
+        }
+
         // 공들이 파란색 상태일때
-        if(PlayerInput.isBallBlue == true)
+        if (PlayerInput.isBallBlue == true)
         {
             // 스폰 가능하고 충돌체가 파란 태그라면
             if(canSpawn && other.CompareTag(Utils.BLUETAG))
