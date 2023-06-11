@@ -7,7 +7,8 @@ public class Utils
     public const string BALLTAG = "Ball";
     public const string BLUETAG = "Blue";
     public const string ORANGETAG = "Orange";
-    public const string EndLineTag = "EndLine";
+    public const string ENDLINETAG = "EndLine";
+    public const string DEADLINETAG = "DeadLine";
 
     public static readonly Quaternion QI = Quaternion.identity;
 
