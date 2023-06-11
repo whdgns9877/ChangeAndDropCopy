@@ -103,10 +103,12 @@ public static class PlayerInput
         {
             state = TouchState.SingleTouch;
             isBallBlue = !isBallBlue;
-            OnSingleTouch?.Invoke();
+            RunEvent();
         }
     }
     
+    public static void RunEvent() => OnSingleTouch?.Invoke();
+
     // 스와이프 거리를 Clamping하여 반환하는 함수
     public static float GetSwipeDistance()
     {
