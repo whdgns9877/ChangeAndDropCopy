@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
+    [SerializeField] private float maxSpeed = 0f;
     private bool canSpawn = true; // 현재 스스로 ball을 생성 시킬수 있는지
     private float spawnDelay = 1.0f; // 생성 딜레이 시간
     private Rigidbody myRb = null;
@@ -9,11 +10,11 @@ public class Ball : MonoBehaviour
     // 5개의 Point배열
     private Vector3[] spawnPoints = new Vector3[5]
     {
-        new Vector3(-0.7f, -0.3f, 0),
-        new Vector3(-0.35f, -0.3f, 0),
-        new Vector3(0f, -0.3f, 0),
-        new Vector3(0.35f, -0.3f, 0),
-        new Vector3(0.7f, -0.3f, 0)
+        new Vector3(-0.5f, -0.1f, 0),
+        new Vector3(-0.25f, -0.1f, 0),
+        new Vector3(0f, -0.1f, 0),
+        new Vector3(0.25f, -0.1f, 0),
+        new Vector3(0.5f, -0.1f, 0)
     };
 
     private void OnEnable()
@@ -24,12 +25,33 @@ public class Ball : MonoBehaviour
         Invoke(nameof(ResetSpawn), spawnDelay);
         //// RigidBody컴포넌트를 얻고 
         myRb = GetComponent<Rigidbody>();
-        //// 활성화되면 우선 아래로 발사
-        GoDown();
+    }
+
+    private void Start()
+    {
+        // 최대 회전 속도를 10으로 설정
+        myRb.maxAngularVelocity = 0.1f;
+
+        // 충돌 해결 속도를 1로 설정
+        myRb.maxDepenetrationVelocity = 1f;
+    }
+
+    private void FixedUpdate()
+    {  
+        if (myRb.velocity.magnitude > maxSpeed)
+        {
+            myRb.velocity *= 0.9f;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.CompareTag(Utils.EndLineTag))
+        {
+            // z축 좌표 고정을 풀어준다
+            myRb.constraints = ~RigidbodyConstraints.FreezePosition;
+        }
+
         // 공들이 파란색 상태일때
         if(PlayerInput.isBallBlue == true)
         {
@@ -37,7 +59,7 @@ public class Ball : MonoBehaviour
             if(canSpawn && other.CompareTag(Utils.BLUETAG))
             {
                 canSpawn = false; // 생성 후 일정 시간 동안 재생성 방지
-                int createNum = other.GetComponent<Obstacle>().MyNum; // 본인이 충돌한 물체의 MyNum으로 몇개 생성할지 결정
+                int createNum = other.GetComponent<ObstacleBlue>().MyNum; // 본인이 충돌한 물체의 MyNum으로 몇개 생성할지 결정
 
                 int increase = GetIncreaseAmount(createNum); // GetIncreaseAmount함수를 통해 (0,4) ,(0,2,4), (0,1,2,3,4) 선택
 
@@ -45,24 +67,21 @@ public class Ball : MonoBehaviour
 
                 for (int i = 0; i < createNum; ++i)
                 {
-                    // ObjectPool에서 오브젝트 활성화 (꺼낼게 없으면 생성함)
-                    ObjectPool.SpawnFromPool(Utils.BALLTAG, transform.position + spawnPoints[idx], Quaternion.identity);
+                    // ObjectPool에서 ball 을 1개 꺼낸다
+                    Ball childBall = BallObjectPool.Instance.SpawnFromPool(transform.position + spawnPoints[idx], Utils.QI).GetComponent<Ball>();
+                    childBall.GoDown(myRb.velocity);
                     idx += increase;
                 }
 
                 // 전부 생성시켜줬다면 생성시킨 주체는 Pool에 반환시킴
-                ObjectPool.ReturnToPool(gameObject);
-                // 실행하고 있던 모든 로직 종료
-                CancelInvoke();
+                BallObjectPool.Instance.ReturnToPool(gameObject);
             }
 
             // 충돌체가 오랜지 태그라면
             if (other.CompareTag(Utils.ORANGETAG))
             {
                 // Pool에 반환
-                ObjectPool.ReturnToPool(gameObject);
-                // 실행하고 있던 모든 로직 종료
-                CancelInvoke();
+                BallObjectPool.Instance.ReturnToPool(gameObject);
             }
         }
         // 공들이 주황색 상태일때
@@ -72,7 +91,7 @@ public class Ball : MonoBehaviour
             if (canSpawn && other.CompareTag(Utils.ORANGETAG))
             {
                 canSpawn = false; // 생성 후 일정 시간 동안 재생성 방지
-                int createNum = other.GetComponent<Obstacle>().MyNum; // 본인이 충돌한 물체의 MyNum으로 몇개 생성할지 결정
+                int createNum = other.GetComponent<ObstacleOrange>().MyNum; // 본인이 충돌한 물체의 MyNum으로 몇개 생성할지 결정
 
                 int increase = GetIncreaseAmount(createNum); // GetIncreaseAmount함수를 통해 (0,4) ,(0,2,4), (0,1,2,3,4) 선택
 
@@ -80,34 +99,28 @@ public class Ball : MonoBehaviour
 
                 for (int i = 0; i < createNum; ++i)
                 {
-                    // ObjectPool에서 오브젝트 활성화 (꺼낼게 없으면 생성함)
-                    ObjectPool.SpawnFromPool(Utils.BALLTAG, transform.position + spawnPoints[idx], Quaternion.identity);
+                    // ObjectPool에서 ball 을 1개 꺼낸다
+                    BallObjectPool.Instance.SpawnFromPool(transform.position + spawnPoints[idx], Utils.QI);
                     idx += increase;
                 }
 
                 // 전부 생성시켜줬다면 생성시킨 주체는 Pool에 반환시킴
-                ObjectPool.ReturnToPool(gameObject);
-                // 실행하고 있던 모든 로직 종료
-                CancelInvoke();
+                BallObjectPool.Instance.ReturnToPool(gameObject);
             }
 
             // 충돌체가 오랜지 태그라면
             if (other.CompareTag(Utils.BLUETAG))
             {
                 // Pool에 반환
-                ObjectPool.ReturnToPool(gameObject);
-                // 실행하고 있던 모든 로직 종료
-                CancelInvoke();
+                BallObjectPool.Instance.ReturnToPool(gameObject);
             }
         }
     }
 
     // 아랫방향으로 랜덤방향으로 힘을 가한다
-    private void GoDown()
+    public void GoDown(Vector3 velocity)
     {
-        //myRb.velocity = Vector3.down;
-        Vector3 dir = new Vector3(Random.Range(-1, 1f), -1f, 0f).normalized;
-        myRb.AddForce(dir, ForceMode.Impulse);
+        myRb.AddForce(velocity, ForceMode.Force);
     }
 
     private int GetIncreaseAmount(int num)
@@ -133,11 +146,4 @@ public class Ball : MonoBehaviour
 
     // 스폰가능한상태로 바꿔주는함수
     private void ResetSpawn() => canSpawn = true;
-
-    // 비활성화 될때는 Pool에 반환
-    private void OnDisable()
-    {
-        ObjectPool.ReturnToPool(gameObject);
-        CancelInvoke();
-    }
 }
