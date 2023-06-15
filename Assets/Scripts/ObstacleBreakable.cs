@@ -80,11 +80,11 @@ public class ObstacleBreakable : Obstacle
             // 큐브의 번호에 따라 회전값과 위치값 조정
             if (i == 0 || i == 4)
             {
-                rotationAmount = squashAmount * 10f * (i == 0 ? -1f : 1f);
+                rotationAmount = squashAmount * 20f * (i == 0 ? -1f : 1f);
             }
             else if (i == 1 || i == 3)
             {
-                rotationAmount = squashAmount * 20f * (i == 1 ? -1f : 1f);
+                rotationAmount = squashAmount * 10f * (i == 1 ? -1f : 1f);
                 positionOffset = squashAmount * -0.1f;
             }
             else if (i == 2)
